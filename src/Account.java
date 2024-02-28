@@ -8,8 +8,13 @@ public class Account {
         return factMoney;
     }
 
-    public void setFactMoney(double factMoney) {
-        this.factMoney = factMoney;
+    public void setFactMoney(double factMoney) throws InsufficientFundsException {
+        if (factMoney>=0) {
+            this.factMoney = factMoney;
+        }
+        else {
+            throw new InsufficientFundsException("Недостаточно денег на счету", factMoney);
+        }
     }
 
 
@@ -18,21 +23,47 @@ public class Account {
         this.numPhone = numPhone;
         this.factMoney = factMoney;
     }
-    public static Account create(String name, String numPhone, double factMoney)
-    {
+    public static Account create(String name, String numPhone, double factMoney) throws NumPhoneExeption, IllegalArgumentException {
+        if (!checkNum(numPhone))
+        {
+            throw new NumPhoneExeption("Не корректный ввод номера телефона", numPhone);
+        }
+        if (factMoney<0)
+        {
+            throw new IllegalArgumentException("Отрицательный счет", factMoney);
+        }
         return new Account(name, numPhone, factMoney);
     }
-
-
-    public void makeTransfer(double transfer, Account transferAcc)
+    public static boolean checkNum(String num)
     {
-        this.setFactMoney(this.getFactMoney()-transfer);
-        transferAcc.setFactMoney(transferAcc.getFactMoney()+transfer);
-    }
-    public void takeMoney(double count)
-    {
-        this.setFactMoney(this.getFactMoney()-count);
+        try {
+            Long.parseLong(num);
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+        return true;
     }
 
+    public void makeTransfer(double transfer, Account transferAcc) throws InsufficientFundsException {
+        try {
+            this.setFactMoney(this.getFactMoney() - transfer);
+            transferAcc.setFactMoney(transferAcc.getFactMoney() + transfer);
+        }
+        catch (InsufficientFundsException e)
+        {
+            throw new InsufficientFundsException("Невозможен перевод", factMoney);
+        }
+    }
+    public void takeMoney(double count) throws InsufficientFundsException {
+        try {
+            this.setFactMoney(this.getFactMoney()-count);
+        }
+        catch (InsufficientFundsException e)
+        {
+            throw new InsufficientFundsException("Невозможно снятие наличных", factMoney);
+        }
+    }
 
 }

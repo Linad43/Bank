@@ -4,8 +4,19 @@ public class DebetAccount extends Account{
         super(name, numPhone, factMoney);
         this.debet = debet;
     }
-    public DebetAccount create(String name, String numPhone, double factMoney, double debet)
-    {
+    public DebetAccount create(String name, String numPhone, double factMoney, double debet) throws NumPhoneExeption, IllegalArgumentException {
+        if (!checkNum(numPhone))
+        {
+            throw new NumPhoneExeption("Не корректный ввод номера телефона", numPhone);
+        }
+        if (factMoney<0)
+        {
+            throw new IllegalArgumentException("Отрицательный счет", factMoney);
+        }
+        if (debet<0)
+        {
+            throw new IllegalArgumentException("Отрицательный счет", debet);
+        }
         return new DebetAccount(name, numPhone, factMoney, debet);
     }
 
@@ -13,17 +24,32 @@ public class DebetAccount extends Account{
         return debet;
     }
 
-    public void setDebet(double debet) {
-        this.debet = debet;
+    public void setDebet(double debet) throws InsufficientFundsException {
+        if (debet>=0) {
+            this.debet = debet;
+        }
+        else {
+            throw new InsufficientFundsException("Недостаточно денег на счету", debet);
+        }
     }
-    public void takeDebet(double count)
-    {
-        this.setDebet(this.getDebet()-count);
-        this.setFactMoney(this.getFactMoney()+count);
+    public void takeDebet(double count) throws InsufficientFundsException {
+        try {
+            this.setDebet(this.getDebet() - count);
+            this.setFactMoney(this.getFactMoney() + count);
+        }
+        catch (InsufficientFundsException e)
+        {
+            throw new InsufficientFundsException("Невозможно перевести из депозита", debet);
+        }
     }
-    public void addDebet(double count)
-    {
-        this.setFactMoney(this.getFactMoney()-count);
-        this.setDebet(this.getDebet()+count);
+    public void addDebet(double count) throws InsufficientFundsException {
+        try {
+            this.setFactMoney(this.getFactMoney() - count);
+            this.setDebet(this.getDebet() + count);
+        }
+        catch (InsufficientFundsException e)
+        {
+            throw new InsufficientFundsException("Невозможно пополнить депозит", factMoney);
+        }
     }
 }
